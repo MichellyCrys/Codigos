@@ -1,0 +1,203 @@
+// BOTOES
+const int pinoBotaoPreto = 3;
+const int pinoBotaoBranco = 2;
+
+// LEDS
+const int pinoLedPreto = 13;
+const int pinoLedBranco = 12;
+
+// DEMAIS VARIAVEIS
+volatile bool ledOnPreto = false; // indica se o LED preto está ligado
+volatile bool ledOnBranco = false; // indica se o LED branco está ligado
+
+byte mb = 3, sb = 0; // minutos e segundos: branco
+byte mp = 3, sp = 0; // minutos e segundos: preto
+
+bool jogoIniciado = false; // indica se o jogo está iniciado
+unsigned long ultimoTempo = 0; // guarda o valor do tempo da última atualização
+unsigned long intervalo = 1000; // Intervalo de 1 segundo
+
+void setup()
+{
+  pinMode(pinoBotaoPreto, INPUT_PULLUP); // configura o pino do botão preto como entrada com resistor pull-up
+  pinMode(pinoBotaoBranco, INPUT_PULLUP); // configura o pino do botão branco como entrada com resistor pull-up
+
+  // SETUP PEÇAS PRETAS
+  pinMode(pinoLedPreto, OUTPUT); // configura o pino do LED preto como saída
+  digitalWrite(pinoLedPreto, LOW); // desliga o LED preto
+
+  // SETUP PEÇAS BRANCAS
+  pinMode(pinoLedBranco, OUTPUT); // configura o pino do LED branco como saída
+  digitalWrite(pinoLedBranco, LOW); // desliga o LED branco
+
+  attachInterrupt(digitalPinToInterrupt(pinoBotaoPreto), buttonPressedBlack, FALLING); // associa a interrupção do botão preto à função buttonPressedBlack
+  attachInterrupt(digitalPinToInterrupt(pinoBotaoBranco), buttonPressedWhite, FALLING); // associa a interrupção do botão branco à função buttonPressedWhite
+
+  Serial.begin(9600); // inicia a comunicação serial
+
+  printTempoJogadores(); // imprime o tempo inicial dos jogadores
+}
+
+void loop()
+{
+  if (jogoIniciado)
+  {
+    unsigned long tempoAtual = millis(); // obtém o tempo atual em milissegundos
+
+    if (tempoAtual - ultimoTempo >= intervalo) // verifica se o intervalo de tempo passou
+    {
+      ultimoTempo = tempoAtual; // atualiza o valor do último tempo
+
+      if (ledOnPreto)
+      {
+        preto(); // atualiza o tempo e o LED preto
+        if (sp == 0 && mp == 0)
+        {
+          jogoIniciado = false;
+          Serial.println("O tempo das peças pretas acabou. As peças brancas ganharam!");
+        }
+      }
+
+      if (ledOnBranco)
+      {
+        branco(); // atualiza o tempo e o LED branco
+        if (sb == 0 && mb == 0)
+        {
+          jogoIniciado = false;
+          Serial.println("O tempo das peças brancas acabou. As peças pretas ganharam!");
+        }
+      }
+    }
+  }
+}
+
+void branco()
+{
+  // acende o branco
+  if (sb > 0) // verifica se os segundos brancos são maiores que zero
+  {
+    sb--; // decrementa os segundos brancos
+  }
+  else
+  {
+    if (mb > 0) // verifica se os minutos brancos são maiores que zero
+    {
+      mb--; // decrementa os minutos brancos
+      sb = 59; // atualiza os segundos brancos para 59
+    }
+  }
+
+  printTempoJogadores(); // imprime o tempo dos jogadores
+}
+
+void preto()
+{
+  // acende o preto
+  if (sp > 0) // verifica se os segundos pretos são maiores que zero
+  {
+    sp--; // decrementa os segundos pretos
+  }
+  else
+  {
+    if (mp > 0) // verifica se os minutos pretos são maiores que zero
+    {
+      mp--; // decrementa os minutos pretos
+      sp = 59; // atualiza os segundos pretos para 59
+    }
+  }
+
+  printTempoJogadores(); // imprime o tempo dos jogadores
+}
+
+void buttonPressedBlack()
+{
+  if (!jogoIniciado)
+  {
+    jogoIniciado = true;
+    ledOnPreto = false; // desliga o LED preto
+    ledOnBranco = true; // liga o LED branco
+    digitalWrite(pinoLedPreto, LOW); // desliga o LED preto
+    digitalWrite(pinoLedBranco, HIGH); // liga o LED branco
+    printTempoJogadores(); // imprime o tempo dos jogadores
+  }
+  else
+  {
+    ledOnPreto = false; // desliga o LED preto
+    ledOnBranco = true; // liga o LED branco
+    digitalWrite(pinoLedPreto, LOW); // desliga o LED preto
+    digitalWrite(pinoLedBranco, HIGH); // liga o LED branco
+
+    if (sp + 3 <= 59)
+    {
+      sp += 3; // incrementa os segundos pretos
+    }
+    else
+    {
+      int overflow = (sp + 3) - 60; // calcula o overflow dos segundos pretos
+      sp = overflow; // atualiza os segundos pretos com o valor do overflow
+      if (mp + 1 <= 59)
+      {
+        mp++; // incrementa os minutos pretos
+      }
+    }
+
+    printTempoJogadores(); // imprime o tempo dos jogadores
+  }
+}
+
+void buttonPressedWhite()
+{
+  if (!jogoIniciado)
+  {
+    jogoIniciado = true;
+    ledOnPreto = true; // liga o LED preto
+    ledOnBranco = false; // desliga o LED branco
+    digitalWrite(pinoLedPreto, HIGH); // liga o LED preto
+    digitalWrite(pinoLedBranco, LOW); // desliga o LED branco
+    printTempoJogadores(); // imprime o tempo dos jogadores
+  }
+  else
+  {
+    ledOnPreto = true; // liga o LED preto
+    ledOnBranco = false; // desliga o LED branco
+    digitalWrite(pinoLedPreto, HIGH); // liga o LED preto
+    digitalWrite(pinoLedBranco, LOW); // desliga o LED branco
+
+    if (sb + 3 <= 59)
+    {
+      sb += 3; // incrementa os segundos brancos
+    }
+    else
+    {
+      int overflow = (sb + 3) - 60; // calcula o overflow dos segundos brancos
+      sb = overflow; // atualiza os segundos brancos com o valor do overflow
+      if (mb + 1 <= 59)
+      {
+        mb++; // incrementa os minutos brancos
+      }
+    }
+    printTempoJogadores(); // imprime o tempo dos jogadores
+  }
+}
+
+void printTempoJogadores()
+{
+  Serial.print("Brancas ");
+  imprimirDoisDigitos(mb);
+  Serial.print(":");
+  imprimirDoisDigitos(sb);
+  Serial.print(" VS ");
+  imprimirDoisDigitos(mp);
+  Serial.print(":");
+  imprimirDoisDigitos(sp);
+  Serial.println(" Pretas");
+}
+
+void imprimirDoisDigitos(byte numero)
+{
+  if (numero < 10)
+  {
+    Serial.print("0");
+  }
+  Serial.print(numero);
+}

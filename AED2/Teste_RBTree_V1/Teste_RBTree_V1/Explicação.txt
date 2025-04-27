@@ -1,0 +1,50 @@
+FUNÇÕES:
+
+newNode: Essa função cria um novo nó da árvore, alocando memória para ele e inicializando
+seus campos, como o ponteiro para os nós filhos, o pai, o ponteiro para os dados armazenados
+e a cor do nó (vermelho).
+
+criaRED: Essa função cria uma nova instância da Árvore Vermelho-Negra (RBTree), alocando
+memória para ela e inicializando seus campos, como a raiz da árvore, as funções de
+comparação e impressão dos dados e as estatísticas da árvore.
+
+__inserirRED: Essa função é uma função auxiliar recursiva para a inserção de um novo nó
+na árvore. Ela percorre a árvore comparando o novo dado com os dados dos nós existentes
+e decide em qual ramo inserir o novo nó. Também atualiza as estatísticas relacionadas
+à inserção.
+
+inserirRED: Essa função é a interface pública para a inserção de um novo dado na árvore.
+Ela chama a função auxiliar __inserirRED passando a raiz da árvore, o novo dado, a função
+de comparação e as estatísticas.
+
+__removerRED: Essa função é uma função auxiliar recursiva para a remoção de um nó da
+árvore. Ela percorre a árvore comparando o dado a ser removido com os dados dos nós 
+existentes e decide em qual ramo continuar a busca. Ela trata os diferentes casos de
+remoção, como a remoção de um nó folha, a remoção de um nó com um único filho e a 
+remoção de um nó com dois filhos. Também atualiza as estatísticas relacionadas à remoção.
+
+removerRED: Essa função é a interface pública para a remoção de um dado da árvore. Ela
+chama a função auxiliar __removerRED passando a raiz da árvore, o dado a ser removido,
+a função de comparação e as estatísticas.
+
+__buscarRED: Essa função é uma função auxiliar recursiva para a busca de um dado na
+árvore. Ela percorre a árvore comparando o dado com os dados dos nós existentes e 
+decide em qual ramo continuar a busca. Também atualiza as estatísticas relacionadas à 
+busca.
+
+buscarRED: Essa função é a interface pública para a busca de um dado na árvore. Ela 
+chama a função auxiliar __buscarRED passando a raiz da árvore, o dado a ser buscado, 
+a função de comparação e as estatísticas. Retorna o ponteiro para o dado encontrado, 
+ou NULL se o dado não for encontrado.
+
+estatisticaRED: Essa função imprime as estatísticas da árvore, como o número total de 
+operações realizadas, o número de comparações de busca, de inserção, de remoção e o 
+número de rotações realizadas durante a inserção e remoção. Essas estatísticas permitem 
+avaliar o desempenho da árvore.
+
+__imprimirRED: Essa função é uma função auxiliar recursiva para imprimir os dados da 
+árvore em ordem. Ela percorre a árvore em ordem recursivamente, chamando a função de 
+impressão passada como parâmetro para cada nó.
+
+imprimirRED: Essa função imprime os dados da árvore em ordem. Ela chama a função 
+auxiliar __imprimirRED passando a raiz da árvore e a função de impressão.
